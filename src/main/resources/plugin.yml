@@ -7,4 +7,5 @@ softdepend: [PlaceholderAPI, Vault]
 main: fr.cocoraid.prodigygui.ProdigyGUI
 commands:
     prodigygui:
+        description: "prodigygui command"
 
