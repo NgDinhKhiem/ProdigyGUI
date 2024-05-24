@@ -20,11 +20,7 @@ public class Utils {
             PacketContainer chatPacket = protocolManager.createPacket(PacketType.Play.Server.CHAT);
             chatPacket.getChatComponents().write(0, chatComponent);
             chatPacket.getBytes().write(0, (byte) 2);
-            try {
-                protocolManager.sendServerPacket(p, chatPacket);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            protocolManager.sendServerPacket(p, chatPacket);
         } else {
             WrapperPlayServerChat chatPacket = new WrapperPlayServerChat();
             chatPacket.setMessage(chatComponent);
