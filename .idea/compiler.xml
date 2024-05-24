@@ -9,8 +9,5 @@
         <module name="ProdigyGUI" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ProdigyGUI" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
