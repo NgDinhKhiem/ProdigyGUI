@@ -270,14 +270,15 @@ public class FileLoader {
             for (String item : section.getKeys(false)) {
                 ConfigurationSection s = file.getConfigurationSection(section.getCurrentPath() + "." + item);
 
-                ItemData itemdata = null;
+                ItemData itemdata;
                 if(s.isString(ID)) {
                     itemdata = new ItemData(s.getString(NAME),  Material.valueOf(s.getString(ID).toUpperCase()));
                 } else if(s.isSet(SKULL_TEXTURE)) {
                     itemdata = new ItemData(s.getString(NAME),  s.getString(SKULL_TEXTURE));
                 } else {
                     //THROW ERROR
-                    System.out.println("ProdigyGUI ERROR: You need at least ID or SKULL TEXTURE to create any item");
+                    //System.out.println("ProdigyGUI ERROR: You need at least ID or SKULL TEXTURE to create any item");
+                    itemdata = new ItemData(s.getString(NAME),Material.STONE);
                 }
                 itemdata.setCommand(s.getString(COMMAND));
                 itemdata.setLore(s.getString(LORE));

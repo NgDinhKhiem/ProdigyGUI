@@ -77,12 +77,12 @@ public abstract class WrappedEntityLiving {
         yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
 
         this.destroyPacket = new WrapperPlayServerEntityDestroy();
-        destroyPacket.setEntityIds(new int[] {id});
+        destroyPacket.setEntityIds(new Integer[] {Integer.valueOf(this.id)});
 
         this.dataWatcher = new WrappedDataWatcher();
 
-        this.metaPacket = new WrapperPlayServerEntityMetadata();
-        metaPacket.setEntityID(id);
+        //this.metaPacket = new WrapperPlayServerEntityMetadata();
+        //metaPacket.setEntityID(id);
 
         this.teleportPacket = new WrapperPlayServerEntityTeleport();
 
@@ -157,7 +157,6 @@ public abstract class WrappedEntityLiving {
 
 
     public void setCustomName(String name) {
-
         if(VersionChecker.isHigherOrEqualThan(VersionChecker.v1_13_R1)) {
             dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2,
                             WrappedDataWatcher.Registry.getChatComponentSerializer(true))
@@ -202,8 +201,8 @@ public abstract class WrappedEntityLiving {
 
 
     public void sendUpdatedmetatada() {
-        metaPacket.setMetadata(dataWatcher.getWatchableObjects());
-        metaPacket.sendPacket(player);
+        //metaPacket.setMetadata(dataWatcher.getWatchableObjects());
+        //metaPacket.sendPacket(player);
     }
 
     public WrappedDataWatcher getDataWatcher() {

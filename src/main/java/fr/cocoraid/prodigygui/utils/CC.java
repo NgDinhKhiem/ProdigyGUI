@@ -83,7 +83,7 @@ public class CC {
 
 
     public static String colored(String s) {
-        if(s == null) return null;
+        if(s == null) return "null";
         return s.replace("&", "§");
     }
 

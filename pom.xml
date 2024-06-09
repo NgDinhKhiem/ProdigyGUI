@@ -83,8 +83,9 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.1.0</version>
-            <scope>provided</scope>
+            <version>5.2.0</version>
+            <systemPath>D:/Developing/Productions/Java/ProdigyGUI/depts/ProtocolLib.jar</systemPath>
+            <scope>system</scope>
         </dependency>
     </dependencies>
 

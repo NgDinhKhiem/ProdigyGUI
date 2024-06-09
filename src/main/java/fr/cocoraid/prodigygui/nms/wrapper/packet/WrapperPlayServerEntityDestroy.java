@@ -4,6 +4,9 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import fr.cocoraid.prodigygui.nms.AbstractPacket;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class WrapperPlayServerEntityDestroy extends AbstractPacket {
 	public static final PacketType TYPE = PacketType.Play.Server.ENTITY_DESTROY;
 
@@ -43,8 +46,9 @@ public class WrapperPlayServerEntityDestroy extends AbstractPacket {
 	 * 
 	 * @param value - new value.
 	 */
-	public void setEntityIds(int[] value) {
-		handle.getIntegerArrays().write(0, value);
+	public void setEntityIds(Integer[] value) {
+		List<Integer> list = Arrays.asList(value);
+		this.handle.getIntLists().write(0, list);
 	}
 
 }

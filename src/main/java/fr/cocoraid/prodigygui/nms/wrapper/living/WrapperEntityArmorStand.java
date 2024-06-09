@@ -31,8 +31,7 @@ public class WrapperEntityArmorStand extends WrappedEntityLiving {
     static {
         if(VersionChecker.isLowerOrEqualThan(VersionChecker.v1_12_R1)) {
             id = 30;
-        }
-
+        }else id = 30;
     }
 
 
