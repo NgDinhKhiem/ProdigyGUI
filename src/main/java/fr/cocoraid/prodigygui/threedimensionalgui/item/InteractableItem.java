@@ -3,40 +3,35 @@ package fr.cocoraid.prodigygui.threedimensionalgui.item;
 import org.bukkit.entity.Player;
 
 public class InteractableItem {
+   private InteractableItem.Interactable interactable;
+   private Item3D item;
+   private Player player;
 
+   public InteractableItem(Item3D item, InteractableItem.Interactable interactable) {
+      this.item = item;
+      this.player = item.getPlayer();
+      this.interactable = interactable;
+   }
 
-    private Interactable interactable;
-    private Item3D item;
-    private Player player;
+   public Item3D getItem() {
+      return this.item;
+   }
 
-    public InteractableItem(Item3D item, Interactable interactable) {
-        this.item = item;
-        this.player = item.getPlayer();
-        this.interactable = interactable;
-    }
+   public void setItem(Item3D item) {
+      this.item = item;
+   }
 
-    public Item3D getItem() {
-        return item;
-    }
+   public InteractableItem.Interactable getInteractable() {
+      return this.interactable;
+   }
 
-    public void setItem(Item3D item) {
-        this.item = item;
-    }
+   public interface Interactable {
+   }
 
-    public Interactable getInteractable() {
-        return interactable;
-    }
+   public interface InteractClickable extends InteractableItem.Interactable {
+      InteractableItem.InteractClickable EMPTY = (SelectorInteractable) -> {
+      };
 
-
-    public interface Interactable {
-    }
-
-
-    public interface InteractClickable extends Interactable {
-        public static InteractClickable EMPTY = SelectorInteractable -> {
-        };
-
-        void interact(InteractableItem listener);
-    }
-
+      void interact(InteractableItem var1);
+   }
 }

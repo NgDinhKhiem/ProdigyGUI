@@ -1,139 +1,90 @@
 package fr.cocoraid.prodigygui.nms.wrapper.packet;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import fr.cocoraid.prodigygui.nms.AbstractPacket;
-import fr.cocoraid.prodigygui.utils.VersionChecker;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 public class WrapperPlayServerEntityTeleport extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.ENTITY_TELEPORT;
+   public static final PacketType TYPE;
 
-	public WrapperPlayServerEntityTeleport() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
+   public WrapperPlayServerEntityTeleport() {
+      super(new PacketContainer(TYPE), TYPE);
+      this.handle.getModifier().writeDefaults();
+   }
 
-	public WrapperPlayServerEntityTeleport(PacketContainer packet) {
-		super(packet, TYPE);
-	}
+   public WrapperPlayServerEntityTeleport(PacketContainer packet) {
+      super(packet, TYPE);
+   }
 
-	/**
-	 * Retrieve entity ID.
-	 *
-	 * @return The current EID
-	 */
-	public int getEntityID() {
-		return handle.getIntegers().read(0);
-	}
+   public int getEntityID() {
+      return (Integer)this.handle.getIntegers().read(0);
+   }
 
-	/**
-	 * Set entity ID.
-	 *
-	 * @param value - new value.
-	 */
-	public void setEntityID(int value) {
-		handle.getIntegers().write(0, value);
-	}
+   public void setEntityID(int value) {
+      this.handle.getIntegers().write(0, value);
+   }
 
-	/**
-	 * Retrieve the entity.
-	 *
-	 * @param world - the current world of the entity.
-	 * @return The entity.
-	 */
-	public Entity getEntity(World world) {
-		return handle.getEntityModifier(world).read(0);
-	}
+   public Entity getEntity(World world) {
+      return (Entity)this.handle.getEntityModifier(world).read(0);
+   }
 
-	/**
-	 * Retrieve the entity.
-	 *
-	 * @param event - the packet event.
-	 * @return The entity.
-	 */
-	public Entity getEntity(PacketEvent event) {
-		return getEntity(event.getPlayer().getWorld());
-	}
+   public Entity getEntity(PacketEvent event) {
+      return this.getEntity(event.getPlayer().getWorld());
+   }
 
+   public void setX(double value) {
+      this.handle.getDoubles().write(0, value);
+   }
 
+   public void setY(double value) {
+      this.handle.getDoubles().write(1, value);
+   }
 
+   public void setZ(double value) {
+      this.handle.getDoubles().write(2, value);
+   }
 
-	public void setX(double value) {
-		handle.getDoubles().write(0, value);
-	}
+   public double getX() {
+      return (Double)this.handle.getDoubles().read(0);
+   }
 
+   public double getY() {
+      return (Double)this.handle.getDoubles().read(1);
+   }
 
-	public void setY(double value) {
-		handle.getDoubles().write(1, value);
-	}
+   public double getZ() {
+      return (Double)this.handle.getDoubles().read(2);
+   }
 
+   public float getYaw() {
+      return (float)(Byte)this.handle.getBytes().read(0) * 360.0F / 256.0F;
+   }
 
+   public void setYaw(float value) {
+      this.handle.getBytes().write(0, (byte)((int)(value * 256.0F / 360.0F)));
+   }
 
-	public void setZ(double value) {
-		handle.getDoubles().write(2, value);
-	}
+   public float getPitch() {
+      return (float)(Byte)this.handle.getBytes().read(1) * 360.0F / 256.0F;
+   }
 
+   public void setPitch(float value) {
+      this.handle.getBytes().write(1, (byte)((int)(value * 256.0F / 360.0F)));
+   }
 
-	public double getX() {
-		return handle.getDoubles().read(0);
-	}
+   public boolean getOnGround() {
+      return (Boolean)this.handle.getBooleans().read(0);
+   }
 
+   public void setOnGround(boolean value) {
+      this.handle.getBooleans().write(0, value);
+   }
 
-	public double getY() {
-		return handle.getDoubles().read(1);
-	}
-
-
-	public double getZ() {
-		return handle.getDoubles().read(2);
-	}
-
-
-	/**
-	 * Retrieve the yaw of the current entity.
-	 *
-	 * @return The current Yaw
-	 */
-	public float getYaw() {
-		return (handle.getBytes().read(0) * 360.F) / 256.0F;
-	}
-
-	/**
-	 * Set the yaw of the current entity.
-	 *
-	 * @param value - new yaw.
-	 */
-	public void setYaw(float value) {
-		handle.getBytes().write(0, (byte) (value * 256.0F / 360.0F));
-	}
-
-	/**
-	 * Retrieve the pitch of the current entity.
-	 *
-	 * @return The current pitch
-	 */
-	public float getPitch() {
-		return (handle.getBytes().read(1) * 360.F) / 256.0F;
-	}
-
-	/**
-	 * Set the pitch of the current entity.
-	 *
-	 * @param value - new pitch.
-	 */
-	public void setPitch(float value) {
-		handle.getBytes().write(1, (byte) (value * 256.0F / 360.0F));
-	}
-
-	public boolean getOnGround() {
-		return handle.getBooleans().read(0);
-	}
-
-	public void setOnGround(boolean value) {
-		handle.getBooleans().write(0, value);
-	}
+   static {
+      TYPE = Server.ENTITY_TELEPORT;
+   }
 }

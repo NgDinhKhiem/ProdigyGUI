@@ -1,90 +1,79 @@
 package fr.cocoraid.prodigygui;
 
 import fr.cocoraid.prodigygui.threedimensionalgui.ThreeDimensionGUI;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.entity.Player;
 
-/**
- * Created by cocoraid on 30/06/2016.
- */
 public class ProdigyGUIPlayer {
+   private static Map<UUID, ProdigyGUIPlayer> prodigyPlayers = new HashMap();
+   private Player player;
+   private ThreeDimensionGUI threeDimensionGUI;
+   private float previousYaw;
+   private int globalTime = 0;
 
-    private static Map<UUID, ProdigyGUIPlayer> prodigyPlayers = new HashMap<>();
+   public ProdigyGUIPlayer(Player player) {
+      this.player = player;
+   }
 
-    private Player player;
-    private ThreeDimensionGUI threeDimensionGUI;
-    private float previousYaw;
-    private int globalTime = 0;
+   public static ProdigyGUIPlayer instanceOf(Player player) {
+      prodigyPlayers.putIfAbsent(player.getUniqueId(), new ProdigyGUIPlayer(player));
+      if (prodigyPlayers.containsKey(player.getUniqueId())) {
+         ((ProdigyGUIPlayer)prodigyPlayers.get(player.getUniqueId())).updatePlayer(player);
+      }
 
+      return (ProdigyGUIPlayer)prodigyPlayers.get(player.getUniqueId());
+   }
 
-    public ProdigyGUIPlayer(Player player) {
-        this.player = player;
-    }
+   public static Map<UUID, ProdigyGUIPlayer> getProdigyPlayers() {
+      return prodigyPlayers;
+   }
 
+   public void resetProdigyPlayer() {
+      this.clearPlayer();
+      prodigyPlayers.remove(this.player.getUniqueId());
+   }
 
-    public static ProdigyGUIPlayer instanceOf(Player player) {
-        prodigyPlayers.putIfAbsent(player.getUniqueId(), new ProdigyGUIPlayer(player));
-        if (prodigyPlayers.containsKey(player.getUniqueId())) {
-            prodigyPlayers.get(player.getUniqueId()).updatePlayer(player);
-        }
-        return prodigyPlayers.get(player.getUniqueId());
-    }
+   public void clearPlayer() {
+      if (this.player != null) {
+         ;
+      }
+   }
 
-    public static Map<UUID, ProdigyGUIPlayer> getProdigyPlayers() {
-        return prodigyPlayers;
-    }
+   public Player getPlayer() {
+      return this.player;
+   }
 
-    public void resetProdigyPlayer() {
-        clearPlayer();
+   public ThreeDimensionGUI getThreeDimensionGUI() {
+      return this.threeDimensionGUI;
+   }
 
-        prodigyPlayers.remove(player.getUniqueId());
-    }
+   public void setThreeDimensionGUI(ThreeDimensionGUI threeDimensionGUI) {
+      this.threeDimensionGUI = threeDimensionGUI;
+   }
 
-    public void clearPlayer() {
-        if (player == null) return;
-       // if (threeDimensionGUI != null)
-            //threeDimensionGUI.closeGui();
-    }
+   public int getGlobalTime() {
+      return this.globalTime;
+   }
 
+   public void addTime() {
+      ++this.globalTime;
+      if (this.globalTime >= 999999) {
+         this.globalTime = 0;
+      }
 
+   }
 
-    public Player getPlayer() {
-        return player;
-    }
+   public void updatePlayer(Player player) {
+      this.player = player;
+   }
 
-    public ThreeDimensionGUI getThreeDimensionGUI() {
-        return threeDimensionGUI;
-    }
+   public float getPreviousYaw() {
+      return this.previousYaw;
+   }
 
-    public void setThreeDimensionGUI(ThreeDimensionGUI threeDimensionGUI) {
-        this.threeDimensionGUI = threeDimensionGUI;
-    }
-
-    public int getGlobalTime() {
-        return globalTime;
-    }
-
-    public void addTime() {
-        globalTime++;
-        if (globalTime >= 999999)
-            globalTime = 0;
-    }
-
-    public void updatePlayer(Player player) {
-        this.player = player;
-    }
-
-
-
-    public float getPreviousYaw() {
-        return previousYaw;
-    }
-
-    public void setPreviousYaw(float previousYaw) {
-        this.previousYaw = previousYaw;
-    }
-
+   public void setPreviousYaw(float previousYaw) {
+      this.previousYaw = previousYaw;
+   }
 }

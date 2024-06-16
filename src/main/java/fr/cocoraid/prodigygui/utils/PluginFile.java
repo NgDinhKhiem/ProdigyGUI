@@ -2,62 +2,60 @@ package fr.cocoraid.prodigygui.utils;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.util.Iterator;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-/**
- * A simple utility class to manage configurations with a file associated to them.
- */
 public class PluginFile extends YamlConfiguration {
+   private File file;
+   private Plugin plugin;
 
-    private File file;
-    private Plugin plugin;
+   public PluginFile(Plugin plugin, File file) {
+      this.file = file;
+      this.plugin = plugin;
+   }
 
-    public PluginFile(Plugin plugin, File file) {
-        super();
-        this.file = file;
-        this.plugin = plugin;
-    }
+   public PluginFile(Plugin plugin, String name) {
+      this(plugin, new File(plugin.getDataFolder(), name));
+   }
 
-    public PluginFile(Plugin plugin, String name) {
-        this(plugin, new File(plugin.getDataFolder(), name));
-    }
-
-    public void load() throws IOException, InvalidConfigurationException {
-
-        if (!file.isFile()) {
-            if (plugin.getResource(file.getName()) != null) {
-                plugin.saveResource(file.getName(), false);
-            } else {
-                if (file.getParentFile() != null) {
-                    file.getParentFile().mkdirs();
-                }
-                file.createNewFile();
+   public void load() throws IOException, InvalidConfigurationException {
+      if (!this.file.isFile()) {
+         if (this.plugin.getResource(this.file.getName()) != null) {
+            this.plugin.saveResource(this.file.getName(), false);
+         } else {
+            if (this.file.getParentFile() != null) {
+               this.file.getParentFile().mkdirs();
             }
-        }
 
-        // To reset all the values when loading.
-        for (String section : this.getKeys(false)) {
-            set(section, null);
-        }
-        load(file);
-    }
+            this.file.createNewFile();
+         }
+      }
 
-    public void save() throws IOException {
-        this.save(file);
-    }
+      Iterator var1 = this.getKeys(false).iterator();
 
-    public File getFile() {
-        return file;
-    }
+      while(var1.hasNext()) {
+         String section = (String)var1.next();
+         this.set(section, (Object)null);
+      }
 
-    public Plugin getPlugin() {
-        return plugin;
-    }
+      this.load(this.file);
+   }
 
-    public String getFileName() {
-        return file.getName();
-    }
+   public void save() throws IOException {
+      this.save(this.file);
+   }
+
+   public File getFile() {
+      return this.file;
+   }
+
+   public Plugin getPlugin() {
+      return this.plugin;
+   }
+
+   public String getFileName() {
+      return this.file.getName();
+   }
 }

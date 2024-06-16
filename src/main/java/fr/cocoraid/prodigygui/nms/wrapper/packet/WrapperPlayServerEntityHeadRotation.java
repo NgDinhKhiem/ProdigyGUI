@@ -1,6 +1,7 @@
 package fr.cocoraid.prodigygui.nms.wrapper.packet;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import fr.cocoraid.prodigygui.nms.AbstractPacket;
@@ -8,75 +9,42 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 public class WrapperPlayServerEntityHeadRotation extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.ENTITY_HEAD_ROTATION;
+   public static final PacketType TYPE;
 
-	public WrapperPlayServerEntityHeadRotation() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
+   public WrapperPlayServerEntityHeadRotation() {
+      super(new PacketContainer(TYPE), TYPE);
+      this.handle.getModifier().writeDefaults();
+   }
 
-	public WrapperPlayServerEntityHeadRotation(PacketContainer packet) {
-		super(packet, TYPE);
-	}
+   public WrapperPlayServerEntityHeadRotation(PacketContainer packet) {
+      super(packet, TYPE);
+   }
 
-	/**
-	 * Retrieve Entity ID.
-	 * <p>
-	 * Notes: entity's ID
-	 * 
-	 * @return The current Entity ID
-	 */
-	public int getEntityID() {
-		return handle.getIntegers().read(0);
-	}
+   public int getEntityID() {
+      return (Integer)this.handle.getIntegers().read(0);
+   }
 
-	/**
-	 * Set Entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEntityID(int value) {
-		handle.getIntegers().write(0, value);
-	}
+   public void setEntityID(int value) {
+      this.handle.getIntegers().write(0, value);
+   }
 
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param world - the current world of the entity.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(World world) {
-		return handle.getEntityModifier(world).read(0);
-	}
+   public Entity getEntity(World world) {
+      return (Entity)this.handle.getEntityModifier(world).read(0);
+   }
 
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param event - the packet event.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(PacketEvent event) {
-		return getEntity(event.getPlayer().getWorld());
-	}
+   public Entity getEntity(PacketEvent event) {
+      return this.getEntity(event.getPlayer().getWorld());
+   }
 
-	/**
-	 * Retrieve Head Yaw.
-	 * <p>
-	 * Notes: head yaw in steps of 2p/256
-	 * 
-	 * @return The current Head Yaw
-	 */
-	public byte getHeadYaw() {
-		return handle.getBytes().read(0);
-	}
+   public byte getHeadYaw() {
+      return (Byte)this.handle.getBytes().read(0);
+   }
 
-	/**
-	 * Set Head Yaw.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setHeadYaw(byte value) {
-		handle.getBytes().write(0, value);
-	}
+   public void setHeadYaw(byte value) {
+      this.handle.getBytes().write(0, value);
+   }
+
+   static {
+      TYPE = Server.ENTITY_HEAD_ROTATION;
+   }
 }

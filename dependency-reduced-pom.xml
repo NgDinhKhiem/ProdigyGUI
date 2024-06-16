@@ -233,7 +233,7 @@
       <artifactId>ProtocolLib</artifactId>
       <version>5.2.0</version>
       <scope>system</scope>
-      <systemPath>D:/Developing/Productions/Java/ProdigyGUI/depts/ProtocolLib.jar</systemPath>
+      <systemPath>D:/Developing/Productions/Java/ProdigyGUI-Fork-Bad/depts/ProtocolLib.jar</systemPath>
     </dependency>
   </dependencies>
 </project>

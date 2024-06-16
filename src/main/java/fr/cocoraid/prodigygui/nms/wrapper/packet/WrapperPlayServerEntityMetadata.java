@@ -1,83 +1,52 @@
 package fr.cocoraid.prodigygui.nms.wrapper.packet;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import fr.cocoraid.prodigygui.nms.AbstractPacket;
+import java.util.List;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import java.util.List;
-
 public class WrapperPlayServerEntityMetadata extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.ENTITY_METADATA;
+   public static final PacketType TYPE;
 
-	public WrapperPlayServerEntityMetadata() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
+   public WrapperPlayServerEntityMetadata() {
+      super(new PacketContainer(TYPE), TYPE);
+      this.handle.getModifier().writeDefaults();
+   }
 
-	public WrapperPlayServerEntityMetadata(PacketContainer packet) {
-		super(packet, TYPE);
-	}
+   public WrapperPlayServerEntityMetadata(PacketContainer packet) {
+      super(packet, TYPE);
+   }
 
-	/**
-	 * Retrieve Entity ID.
-	 * <p>
-	 * Notes: entity's ID
-	 * 
-	 * @return The current Entity ID
-	 */
-	public int getEntityID() {
-		return handle.getIntegers().read(0);
-	}
+   public int getEntityID() {
+      return (Integer)this.handle.getIntegers().read(0);
+   }
 
-	/**
-	 * Set Entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEntityID(int value) {
-		handle.getIntegers().write(0, value);
-	}
+   public void setEntityID(int value) {
+      this.handle.getIntegers().write(0, value);
+   }
 
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param world - the current world of the entity.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(World world) {
-		return handle.getEntityModifier(world).read(0);
-	}
+   public Entity getEntity(World world) {
+      return (Entity)this.handle.getEntityModifier(world).read(0);
+   }
 
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param event - the packet event.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(PacketEvent event) {
-		return getEntity(event.getPlayer().getWorld());
-	}
+   public Entity getEntity(PacketEvent event) {
+      return this.getEntity(event.getPlayer().getWorld());
+   }
 
-	/**
-	 * Retrieve Metadata.
-	 * 
-	 * @return The current Metadata
-	 */
-	public List<WrappedWatchableObject> getMetadata() {
-		return handle.getWatchableCollectionModifier().read(0);
-	}
+   public List<WrappedWatchableObject> getMetadata() {
+      return (List)this.handle.getWatchableCollectionModifier().read(0);
+   }
 
-	/**
-	 * Set Metadata.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setMetadata(List<WrappedWatchableObject> value) {
-		handle.getWatchableCollectionModifier().write(0, value);
-	}
+   public void setMetadata(List<WrappedWatchableObject> value) {
+      this.handle.getWatchableCollectionModifier().write(0, value);
+   }
+
+   static {
+      TYPE = Server.ENTITY_METADATA;
+   }
 }

@@ -4,36 +4,24 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
-
 public abstract class ParticleBuilder {
+   protected Location location;
+   protected int amount = 1;
+   protected Particle particle;
 
-    protected Location location;
-    protected int amount = 1;
-    protected Particle particle;
+   public ParticleBuilder(Location location) {
+      this.location = location;
+   }
 
+   public ParticleBuilder setParticle(Particle particle) {
+      this.particle = particle;
+      return this;
+   }
 
-    public ParticleBuilder(Location location) {
-        this.location = location;
-    }
+   public ParticleBuilder setAmount(int amount) {
+      this.amount = amount;
+      return this;
+   }
 
-    public ParticleBuilder setParticle(Particle particle) {
-        this.particle = particle;
-        return this;
-    }
-
-    public ParticleBuilder setAmount(int amount) {
-        this.amount = amount;
-        return this;
-    }
-
-
-
-    public abstract void sendParticle(Player player);
-
-
-
-
-
+   public abstract void sendParticle(Player var1);
 }
-
-

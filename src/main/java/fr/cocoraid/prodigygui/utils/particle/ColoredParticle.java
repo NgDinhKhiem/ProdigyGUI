@@ -6,53 +6,55 @@ import fr.cocoraid.prodigygui.utils.VersionChecker;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.entity.Player;
 
 public class ColoredParticle extends ParticleBuilder {
+   private Color color;
+   private double radius = 0.0D;
 
-    private Color color;
-    private double radius = 0;
-    public ColoredParticle(Location location) {
-        super(location);
-        if(ColoredParticleData.getColorableParticles().contains(particle)) {
-            System.out.println("Error: Particle " + particle.name() + " is not available for " + getClass().getSimpleName());
-            return;
-        }
-    }
+   public ColoredParticle(Location location) {
+      super(location);
+      if (ColoredParticleData.getColorableParticles().contains(this.particle)) {
+         System.out.println("Error: Particle " + this.particle.name() + " is not available for " + this.getClass().getSimpleName());
+      }
+   }
 
-    public ColoredParticle setColor(Color color) {
-        this.color = color;
-        return this;
-    }
+   public ColoredParticle setColor(Color color) {
+      this.color = color;
+      return this;
+   }
 
-    public ColoredParticle setRadius(double radius) {
-        this.radius = radius;
-        return this;
-    }
+   public ColoredParticle setRadius(double radius) {
+      this.radius = radius;
+      return this;
+   }
 
-    public ColoredParticle setColor(int r, int g, int b) {
-        this.color = Color.fromBGR(b,g,r);
-        return this;
-    }
+   public ColoredParticle setColor(int r, int g, int b) {
+      this.color = Color.fromBGR(b, g, r);
+      return this;
+   }
 
-    @Override
-    public void sendParticle(Player player) {
-        if(VersionChecker.isHigherOrEqualThan(VersionChecker.v1_13_R1)) {
-            if (particle == Particle.REDSTONE) {
-                Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
-                for (int i = 0; i < amount; i++) {
-                    Location loc = radius > 0 ? location.clone().add(UtilMath.randomRange(-radius, radius), UtilMath.randomRange(-radius, radius), UtilMath.randomRange(-radius, radius)) : location;
-                    player.spawnParticle(Particle.REDSTONE, loc, 0, dustOptions);
-                }
-            } else if (particle == Particle.SPELL_MOB_AMBIENT || particle == Particle.SPELL_MOB) {
-                double red = color.getRed() / 255D;
-                double green = color.getGreen() / 255D;
-                double blue = color.getBlue() / 255D;
-                for (int i = 0; i < amount; i++) {
-                    Location loc = radius > 0 ? location.clone().add(UtilMath.randomRange(-radius, radius), UtilMath.randomRange(-radius, radius), UtilMath.randomRange(-radius, radius)) : location;
-                    player.spawnParticle(Particle.SPELL_MOB, loc, 0, red, green, blue, 1);
-                }
+   public void sendParticle(Player player) {
+      if (VersionChecker.isHigherOrEqualThan(VersionChecker.v1_13_R1)) {
+         if (this.particle == Particle.REDSTONE) {
+            DustOptions dustOptions = new DustOptions(this.color, 1.0F);
+
+            for(int i = 0; i < this.amount; ++i) {
+               Location loc = this.radius > 0.0D ? this.location.clone().add(UtilMath.randomRange(-this.radius, this.radius), UtilMath.randomRange(-this.radius, this.radius), UtilMath.randomRange(-this.radius, this.radius)) : this.location;
+               player.spawnParticle(Particle.REDSTONE, loc, 0, dustOptions);
             }
-        }
-    }
+         } else if (this.particle == Particle.SPELL_MOB_AMBIENT || this.particle == Particle.SPELL_MOB) {
+            double red = (double)this.color.getRed() / 255.0D;
+            double green = (double)this.color.getGreen() / 255.0D;
+            double blue = (double)this.color.getBlue() / 255.0D;
+
+            for(int i = 0; i < this.amount; ++i) {
+               Location loc = this.radius > 0.0D ? this.location.clone().add(UtilMath.randomRange(-this.radius, this.radius), UtilMath.randomRange(-this.radius, this.radius), UtilMath.randomRange(-this.radius, this.radius)) : this.location;
+               player.spawnParticle(Particle.SPELL_MOB, loc, 0, red, green, blue, 1.0D);
+            }
+         }
+      }
+
+   }
 }

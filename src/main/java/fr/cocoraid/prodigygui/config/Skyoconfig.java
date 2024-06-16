@@ -2,17 +2,6 @@ package fr.cocoraid.prodigygui.config;
 
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Primitives;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.util.Vector;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
@@ -24,354 +13,245 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.util.Vector;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Skyoconfig {
-	
-	private static final transient char DEFAULT_SEPARATOR = '_';
-	private static final transient String LINE_SEPARATOR = System.lineSeparator();
-	private static final transient String TEMP_CONFIG_SECTION = "temp";
-	
-	private transient File configFile;
-	private transient List<String> header;
-	
-	/**
-	 * Creates a new instance of Skyoconfig without header.
-	 * 
-	 * @param configFile The file where the configuration will be loaded an saved.
-	 */
-	
-	protected Skyoconfig(final File configFile) {
-		this(configFile, null);
-	}
-	
-	/**
-	 * Creates a new instance of Skyoconfig.
-	 * 
-	 * @param configFile The file where the configuration will be loaded an saved.
-	 * @param header The configuration's header.
-	 */
-	
-	protected Skyoconfig(final File configFile, final List<String> header) {
-		this.configFile = configFile;
-		this.header = header;
-	}
-	
-	/**
-	 * Loads the configuration from the specified file.
-	 * 
-	 * @throws InvalidConfigurationException If there is an error while loading the config.
-	 */
-	
-	public final void load() throws InvalidConfigurationException {
-		try {
-			final YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-			Class<?> clazz = getClass();
-			while(clazz != Skyoconfig.class) {
-				for(final Field field : clazz.getFields()) {
-					loadField(field, getFieldName(field), config);
-				}
-				clazz = clazz.getSuperclass();
-			}
-			saveConfig(config);
-		}
-		catch(final Exception ex) {
-			throw new InvalidConfigurationException(ex);
-		}
-	}
-	
-	/**
-	 * Saves the configuration to the specified file.
-	 * 
-	 * @throws InvalidConfigurationException If there is an error while saving the config.
-	 */
-	
-	public final void save() throws InvalidConfigurationException {
-		try {
-			final YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-			Class<?> clazz = getClass();
-			while(clazz != Skyoconfig.class) {
-				for(final Field field : clazz.getFields()) {
-					saveField(field, getFieldName(field), config);
-				}
-				clazz = clazz.getSuperclass();
-			}
-			saveConfig(config);
-		}
-		catch(final Exception ex) {
-			throw new InvalidConfigurationException(ex);
-		}
-	}
-	
-	/**
-	 * Gets the formatted <b>Field</b>'s name.
-	 * 
-	 * @param field The <b>Field</b>.
-	 * 
-	 * @return The formatted <b>Field</b>'s name.
-	 */
-	
-	private String getFieldName(final Field field) {
-		final ConfigOptions options = field.getAnnotation(ConfigOptions.class);
-		if(options == null) {
-			return field.getName().replace(DEFAULT_SEPARATOR, '.');
-		}
-		final String name = options.name();
-		if(name.equals("")) {
-			return field.getName().replace(DEFAULT_SEPARATOR, '.');
-		}
-		return name;
-	}
-	
-	/**
-	 * Checks if a field should be ignored.
-	 * 
-	 * @param field The <b>Field</b>.
-	 * 
-	 * @return <b>true</b> Yes.
-	 * <br><b>false</b> Otherwise.
-	 */
-	
-	private boolean ignoreField(final Field field) {
-		final ConfigOptions options = field.getAnnotation(ConfigOptions.class);
-		return options != null && options.ignore();
-	}
-	
-	/**
-	 * Saves the configuration.
-	 * 
-	 * @param config The <b>YamlConfiguration</b>.
-	 * 
-	 * @throws IOException <b>InputOutputException</b>.
-	 */
-	
-	private void saveConfig(final YamlConfiguration config) throws IOException {
-		if(header != null && header.size() > 0) {
-			config.options().header(Joiner.on(LINE_SEPARATOR).join(header));
-		}
-		config.save(configFile);
-	}
-	
-	/**
-	 * Loads a Field from its path from the config.
-	 * 
-	 * @param field The specified <b>Field</b>.
-	 * @param name The <b>Field</b>'s name. Will be the path.
-	 * @param config The <b>YamlConfiguration</b>.
-	 * 
-	 * @throws ParseException If the JSON parser fails to parse a <b>Location</b> or a <b>Vector</b>.
-	 * @throws IllegalAccessException If <b>Skyoconfig</b> does not have access to the <b>Field</b> or the <b>Method</b> <b>valueOf</b> of a <b>Primitive</b>.
-	 * @throws InvocationTargetException Invoked if the <b>Skyoconfig</b> fails to use <b>valueOf</b> for a <b>Primitive</b>.
-	 * @throws NoSuchMethodException Same as <b>InvocationTargetException</b>.
-	 * @throws InstantiationException When a <b>Map</b> cannot be created.
-	 */
-	
-	private void loadField(final Field field, final String name, final YamlConfiguration config) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ParseException, InstantiationException {
-		if(Modifier.isTransient(field.getModifiers()) || ignoreField(field)) {
-			return;
-		}
-		final Object configValue = config.get(getFieldName(field));
-		if(configValue == null) {
-			saveField(field, name, config);
-		}
-		else {
-			field.set(this, deserializeObject(field.getType(), configValue));
-		}
-	}
-	
-	/**
-	 * Saves a <b>Field</b> to the config.
-	 * 
-	 * @param field The specified <b>Field</b>.
-	 * @param name The <b>Field</b>'s name. The path of the value in the config.
-	 * @param config The <b>YamlConfiguration</b>.
-	 * 
-	 * @throws IllegalAccessException If <b>Skyoconfig</b> does not have access to the <b>Field</b>.
-	 */
-	
-	private void saveField(final Field field, final String name, final YamlConfiguration config) throws IllegalAccessException {
-		if(Modifier.isTransient(field.getModifiers()) || ignoreField(field)) {
-			return;
-		}
-		config.set(name, serializeObject(field.get(this), config));
-	}
-	
-	/**
-	 * Deserializes an <b>Object</b> from the configuration.
-	 * 
-	 * @param clazz The object's <b>Type</b>.
-	 * @param object The <b>Object</b>'s.
-	 * 
-	 * @return The deserialized value of the specified <b>Object</b>.
-	 * 
-	 * @throws ParseException If the JSON parser fails to parse a <b>Location</b> or a <b>Vector</b>.
-	 * @throws IllegalAccessException If <b>Skyoconfig</b> does not have access to the <b>Field</b> or the <b>Method</b> <b>valueOf</b> of a <b>Primitive</b>.
-	 * @throws InvocationTargetException Invoked if the <b>Skyoconfig</b> fails to use <b>valueOf</b> for a <b>Primitive</b>.
-	 * @throws NoSuchMethodException Same as <b>InvocationTargetException</b>.
-	 * @throws InstantiationException When a <b>Map</b> cannot be created.
-	 */
-	
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private Object deserializeObject(final Class<?> clazz, final Object object) throws ParseException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-		if(clazz.isPrimitive()) {
-			return Primitives.wrap(clazz).getMethod("valueOf", String.class).invoke(this, object.toString());
-		}
-		if(Primitives.isWrapperType(clazz)) {
-			return clazz.getMethod("valueOf", String.class).invoke(this, object.toString());
-		}
-		if(clazz.isEnum() || object instanceof Enum<?>) {
-			return Enum.valueOf((Class<? extends Enum>)clazz, object.toString());
-		}
-		if(Map.class.isAssignableFrom(clazz) || object instanceof Map) {
-			final ConfigurationSection section = (ConfigurationSection)object;
-			final Map<Object, Object> unserializedMap = new HashMap<>();
-			for(final String key : section.getKeys(false)) {
-				final Object value = section.get(key);
-				unserializedMap.put(key, deserializeObject(value.getClass(), value));
-			}
-			final Object map = clazz.newInstance();
-			clazz.getMethod("putAll", Map.class).invoke(map, unserializedMap);
-			return map;
-		}
-		if(List.class.isAssignableFrom(clazz) || object instanceof List) {
-			final List<Object> result = new ArrayList<>();
-			for(final Object value : (List<?>)object) {
-				result.add(deserializeObject(value.getClass(), value));
-			}
-			return result;
-		}
-		if(Location.class.isAssignableFrom(clazz) || object instanceof Location) {
-			final JSONObject jsonObject = (JSONObject)new JSONParser().parse(object.toString());
-			return new Location(Bukkit.getWorld(jsonObject.get("world").toString()), Double.parseDouble(jsonObject.get("x").toString()), Double.parseDouble(jsonObject.get("y").toString()), Double.parseDouble(jsonObject.get("z").toString()), Float.parseFloat(jsonObject.get("yaw").toString()), Float.parseFloat(jsonObject.get("pitch").toString()));
-		}
-		if(Vector.class.isAssignableFrom(clazz) || object instanceof Vector) {
-			final JSONObject jsonObject = (JSONObject)new JSONParser().parse(object.toString());
-			return new Vector(Double.parseDouble(jsonObject.get("x").toString()), Double.parseDouble(jsonObject.get("y").toString()), Double.parseDouble(jsonObject.get("z").toString()));
-		}
-		return ChatColor.translateAlternateColorCodes('&', object.toString());
-	}
-	
-	/**
-	 * Serializes an <b>Object</b> to the configuration.
-	 * 
-	 * @param object The specified <b>Object</b>.
-	 * @param config The <b>YamlConfiguration</b>. Used to temporally save <b>Map</b>s.
-	 * 
-	 * @return The serialized <b>Object</b>.
-	 */
-	
-	@SuppressWarnings("unchecked")
-	private Object serializeObject(final Object object, final YamlConfiguration config) {
-		if(object instanceof String) {
-			return object.toString().replace(ChatColor.COLOR_CHAR, '&');
-		}
-		if(object instanceof Enum) {
-			return ((Enum<?>)object).name();
-		}
-		if(object instanceof Map) {
-			final ConfigurationSection section = config.createSection(TEMP_CONFIG_SECTION);
-			for(final Entry<?, ?> entry : ((Map<?, ?>)object).entrySet()) {
-				section.set(entry.getKey().toString(), serializeObject(entry.getValue(), config));
-			}
-			config.set(TEMP_CONFIG_SECTION, null);
-			return section;
-		}
-		if(object instanceof List) {
-			final List<Object> result = new ArrayList<>();
-			for(final Object value : (List<?>)object) {
-				result.add(serializeObject(value, config));
-			}
-			return result;
-		}
-		if(object instanceof Location) {
-			final Location location = (Location)object;
-			final JSONObject jsonObject = new JSONObject();
-			jsonObject.put("world", location.getWorld().getName());
-			jsonObject.put("x", location.getX());
-			jsonObject.put("y", location.getY());
-			jsonObject.put("z", location.getZ());
-			jsonObject.put("yaw", location.getYaw());
-			jsonObject.put("pitch", location.getPitch());
-			return jsonObject.toJSONString();
-		}
-		if(object instanceof Vector) {
-			final Vector vector = (Vector)object;
-			final JSONObject jsonObject = new JSONObject();
-			jsonObject.put("x", vector.getX());
-			jsonObject.put("y", vector.getY());
-			jsonObject.put("z", vector.getZ());
-			return jsonObject.toJSONString();
-		}
-		return object;
-	}
-	
-	/**
-	 * Gets the configuration's header.
-	 * 
-	 * @return The header.
-	 */
-	
-	public final List<String> getHeader() {
-		return header;
-	}
-	
-	/**
-	 * Gets the configuration's <b>File</b>.
-	 * 
-	 * @return The <b>File</b>.
-	 */
-	
-	public final File getFile() {
-		return configFile;
-	}
-	
-	/**
-	 * Sets the configuration's header.
-	 * 
-	 * @param header The header.
-	 */
-	
-	public final void setHeader(final List<String> header) {
-		this.header = header;
-	}
-	
-	/**
-	 * Sets the configuration's <b>File</b>.
-	 * 
-	 * @param configFile The <b>File</b>.
-	 */
-	
-	public final void setFile(final File configFile) {
-		this.configFile = configFile;
-	}
-	
-	/**
-	 * Extra params for configuration fields.
-	 */
-	
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	protected @interface ConfigOptions {
-		
-		/**
-		 * The key's name.
-		 * 
-		 * @return The key's name.
-		 */
-		
-		String name() default "";
-		
-		/**
-		 * If Skyoconfig should ignore this field.
-		 * 
-		 * @return <b>true</b> Yes.
-		 * <br><b>false</b> Otherwise.
-		 */
-		
-		boolean ignore() default false;
-		
-	}
-	
+   private static final transient char DEFAULT_SEPARATOR = '_';
+   private static final transient String LINE_SEPARATOR = System.lineSeparator();
+   private static final transient String TEMP_CONFIG_SECTION = "temp";
+   private transient File configFile;
+   private transient List<String> header;
+
+   protected Skyoconfig(File configFile) {
+      this(configFile, (List)null);
+   }
+
+   protected Skyoconfig(File configFile, List<String> header) {
+      this.configFile = configFile;
+      this.header = header;
+   }
+
+   public final void load() throws InvalidConfigurationException {
+      try {
+         YamlConfiguration config = YamlConfiguration.loadConfiguration(this.configFile);
+
+         for(Class clazz = this.getClass(); clazz != Skyoconfig.class; clazz = clazz.getSuperclass()) {
+            Field[] var3 = clazz.getFields();
+            int var4 = var3.length;
+
+            for(int var5 = 0; var5 < var4; ++var5) {
+               Field field = var3[var5];
+               this.loadField(field, this.getFieldName(field), config);
+            }
+         }
+
+         this.saveConfig(config);
+      } catch (Exception var7) {
+         throw new InvalidConfigurationException(var7);
+      }
+   }
+
+   public final void save() throws InvalidConfigurationException {
+      try {
+         YamlConfiguration config = YamlConfiguration.loadConfiguration(this.configFile);
+
+         for(Class clazz = this.getClass(); clazz != Skyoconfig.class; clazz = clazz.getSuperclass()) {
+            Field[] var3 = clazz.getFields();
+            int var4 = var3.length;
+
+            for(int var5 = 0; var5 < var4; ++var5) {
+               Field field = var3[var5];
+               this.saveField(field, this.getFieldName(field), config);
+            }
+         }
+
+         this.saveConfig(config);
+      } catch (Exception var7) {
+         throw new InvalidConfigurationException(var7);
+      }
+   }
+
+   private String getFieldName(Field field) {
+      Skyoconfig.ConfigOptions options = (Skyoconfig.ConfigOptions)field.getAnnotation(Skyoconfig.ConfigOptions.class);
+      if (options == null) {
+         return field.getName().replace('_', '.');
+      } else {
+         String name = options.name();
+         return name.equals("") ? field.getName().replace('_', '.') : name;
+      }
+   }
+
+   private boolean ignoreField(Field field) {
+      Skyoconfig.ConfigOptions options = (Skyoconfig.ConfigOptions)field.getAnnotation(Skyoconfig.ConfigOptions.class);
+      return options != null && options.ignore();
+   }
+
+   private void saveConfig(YamlConfiguration config) throws IOException {
+      if (this.header != null && this.header.size() > 0) {
+         config.options().header(Joiner.on(LINE_SEPARATOR).join(this.header));
+      }
+
+      config.save(this.configFile);
+   }
+
+   private void loadField(Field field, String name, YamlConfiguration config) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ParseException, InstantiationException {
+      if (!Modifier.isTransient(field.getModifiers()) && !this.ignoreField(field)) {
+         Object configValue = config.get(this.getFieldName(field));
+         if (configValue == null) {
+            this.saveField(field, name, config);
+         } else {
+            field.set(this, this.deserializeObject(field.getType(), configValue));
+         }
+
+      }
+   }
+
+   private void saveField(Field field, String name, YamlConfiguration config) throws IllegalAccessException {
+      if (!Modifier.isTransient(field.getModifiers()) && !this.ignoreField(field)) {
+         config.set(name, this.serializeObject(field.get(this), config));
+      }
+   }
+
+   private Object deserializeObject(Class<?> clazz, Object object) throws ParseException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+      if (clazz.isPrimitive()) {
+         return Primitives.wrap(clazz).getMethod("valueOf", String.class).invoke(this, object.toString());
+      } else if (Primitives.isWrapperType(clazz)) {
+         return clazz.getMethod("valueOf", String.class).invoke(this, object.toString());
+      } else if (!clazz.isEnum() && !(object instanceof Enum)) {
+         Object value;
+         if (!Map.class.isAssignableFrom(clazz) && !(object instanceof Map)) {
+            if (!List.class.isAssignableFrom(clazz) && !(object instanceof List)) {
+               JSONObject jsonObject;
+               if (!Location.class.isAssignableFrom(clazz) && !(object instanceof Location)) {
+                  if (!Vector.class.isAssignableFrom(clazz) && !(object instanceof Vector)) {
+                     return ChatColor.translateAlternateColorCodes('&', object.toString());
+                  } else {
+                     jsonObject = (JSONObject)(new JSONParser()).parse(object.toString());
+                     return new Vector(Double.parseDouble(jsonObject.get("x").toString()), Double.parseDouble(jsonObject.get("y").toString()), Double.parseDouble(jsonObject.get("z").toString()));
+                  }
+               } else {
+                  jsonObject = (JSONObject)(new JSONParser()).parse(object.toString());
+                  return new Location(Bukkit.getWorld(jsonObject.get("world").toString()), Double.parseDouble(jsonObject.get("x").toString()), Double.parseDouble(jsonObject.get("y").toString()), Double.parseDouble(jsonObject.get("z").toString()), Float.parseFloat(jsonObject.get("yaw").toString()), Float.parseFloat(jsonObject.get("pitch").toString()));
+               }
+            } else {
+               List<Object> result = new ArrayList();
+               Iterator var10 = ((List)object).iterator();
+
+               while(var10.hasNext()) {
+                  value = var10.next();
+                  result.add(this.deserializeObject(value.getClass(), value));
+               }
+
+               return result;
+            }
+         } else {
+            ConfigurationSection section = (ConfigurationSection)object;
+            Map<Object, Object> unserializedMap = new HashMap();
+            Iterator var5 = section.getKeys(false).iterator();
+
+            while(var5.hasNext()) {
+               String key = (String)var5.next();
+               Object object1 = section.get(key);
+               unserializedMap.put(key, this.deserializeObject(object1.getClass(), object1));
+            }
+
+            value = clazz.newInstance();
+            clazz.getMethod("putAll", Map.class).invoke(value, unserializedMap);
+            return value;
+         }
+      } else {
+         return clazz;
+      }
+   }
+
+   private Object serializeObject(Object object, YamlConfiguration config) {
+      if (object instanceof String) {
+         return object.toString().replace('§', '&');
+      } else if (object instanceof Enum) {
+         return ((Enum)object).name();
+      } else {
+         Iterator var4;
+         if (object instanceof Map) {
+            ConfigurationSection section = config.createSection("temp");
+            var4 = ((Map)object).entrySet().iterator();
+
+            while(var4.hasNext()) {
+               Entry<?, ?> entry = (Entry)var4.next();
+               section.set(entry.getKey().toString(), this.serializeObject(entry.getValue(), config));
+            }
+
+            config.set("temp", (Object)null);
+            return section;
+         } else if (!(object instanceof List)) {
+            JSONObject jsonObject;
+            if (object instanceof Location) {
+               Location location = (Location)object;
+               jsonObject = new JSONObject();
+               jsonObject.put("world", location.getWorld().getName());
+               jsonObject.put("x", location.getX());
+               jsonObject.put("y", location.getY());
+               jsonObject.put("z", location.getZ());
+               jsonObject.put("yaw", location.getYaw());
+               jsonObject.put("pitch", location.getPitch());
+               return jsonObject.toJSONString();
+            } else if (object instanceof Vector) {
+               Vector vector = (Vector)object;
+               jsonObject = new JSONObject();
+               jsonObject.put("x", vector.getX());
+               jsonObject.put("y", vector.getY());
+               jsonObject.put("z", vector.getZ());
+               return jsonObject.toJSONString();
+            } else {
+               return object;
+            }
+         } else {
+            List<Object> result = new ArrayList();
+            var4 = ((List)object).iterator();
+
+            while(var4.hasNext()) {
+               Object value = var4.next();
+               result.add(this.serializeObject(value, config));
+            }
+
+            return result;
+         }
+      }
+   }
+
+   public final List<String> getHeader() {
+      return this.header;
+   }
+
+   public final File getFile() {
+      return this.configFile;
+   }
+
+   public final void setHeader(List<String> header) {
+      this.header = header;
+   }
+
+   public final void setFile(File configFile) {
+      this.configFile = configFile;
+   }
+
+   @Retention(RetentionPolicy.RUNTIME)
+   @Target({ElementType.FIELD})
+   protected @interface ConfigOptions {
+      String name() default "";
+
+      boolean ignore() default false;
+   }
 }

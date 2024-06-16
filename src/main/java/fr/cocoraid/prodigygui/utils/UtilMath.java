@@ -2,112 +2,66 @@ package fr.cocoraid.prodigygui.utils;
 
 import org.bukkit.util.Vector;
 
-
 public class UtilMath {
+   public static boolean elapsed(long from, long required) {
+      return System.currentTimeMillis() - from > required;
+   }
 
+   public static float getLookAtYaw(Vector motion) {
+      double dx = motion.getX();
+      double dz = motion.getZ();
+      double yaw = 0.0D;
+      if (dx != 0.0D) {
+         if (dx < 0.0D) {
+            yaw = 4.71238898038469D;
+         } else {
+            yaw = 1.5707963267948966D;
+         }
 
-    public static boolean elapsed(long from, long required) {
-        return System.currentTimeMillis() - from > required;
-    }
+         yaw -= Math.atan(dz / dx);
+      } else if (dz < 0.0D) {
+         yaw = 3.141592653589793D;
+      }
 
+      return (float)(-yaw * 180.0D / 3.141592653589793D - 90.0D) + 90.0F;
+   }
 
-    public static float getLookAtYaw(Vector motion) {
-        double dx = motion.getX();
-        double dz = motion.getZ();
-        double yaw = 0;
-        // Set yaw
-        if (dx != 0) {
-            // Set yaw start value based on dx
-            if (dx < 0) {
-                yaw = 1.5 * Math.PI;
-            } else {
-                yaw = 0.5 * Math.PI;
-            }
-            yaw -= Math.atan(dz / dx);
-        } else if (dz < 0) {
-            yaw = Math.PI;
-        }
-        return (float) (-yaw * 180 / Math.PI - 90) + 90;
-    }
+   public static final Vector rotateAroundAxisX(Vector v, double angle) {
+      double cos = Math.cos(angle);
+      double sin = Math.sin(angle);
+      double y = v.getY() * cos - v.getZ() * sin;
+      double z = v.getY() * sin + v.getZ() * cos;
+      return v.setY(y).setZ(z);
+   }
 
+   public static final Vector rotateAroundAxisY(Vector v, double angle) {
+      double cos = Math.cos(angle);
+      double sin = Math.sin(angle);
+      double x = v.getX() * cos + v.getZ() * sin;
+      double z = v.getX() * -sin + v.getZ() * cos;
+      return v.setX(x).setZ(z);
+   }
 
-    /**
-     * Vecteur qui s'update autour de l'axe X avec un angle
-     *
-     * @param v
-     * @param angle
-     * @return
-     */
-    public static final Vector rotateAroundAxisX(Vector v, double angle) {
-        double y, z, cos, sin;
-        cos = Math.cos(angle);
-        sin = Math.sin(angle);
-        y = v.getY() * cos - v.getZ() * sin;
-        z = v.getY() * sin + v.getZ() * cos;
-        return v.setY(y).setZ(z);
-    }
+   public static final Vector rotateAroundAxisZ(Vector v, double angle) {
+      double cos = Math.cos(angle);
+      double sin = Math.sin(angle);
+      double x = v.getX() * cos - v.getY() * sin;
+      double y = v.getX() * sin + v.getY() * cos;
+      return v.setX(x).setY(y);
+   }
 
-    /**
-     * Vecteur qui s'update autour de l'axe Y avec un angle
-     *
-     * @param v
-     * @param angle
-     * @return
-     */
-    public static final Vector rotateAroundAxisY(Vector v, double angle) {
-        double x, z, cos, sin;
-        cos = Math.cos(angle);
-        sin = Math.sin(angle);
-        x = v.getX() * cos + v.getZ() * sin;
-        z = v.getX() * -sin + v.getZ() * cos;
-        return v.setX(x).setZ(z);
-    }
+   public static final Vector rotateVector(Vector v, double angleX, double angleY, double angleZ) {
+      rotateAroundAxisX(v, angleX);
+      rotateAroundAxisY(v, angleY);
+      rotateAroundAxisZ(v, angleZ);
+      return v;
+   }
 
-    /**
-     * Vecteur qui s'update autour de l'axe Z avec un angle
-     *
-     * @param v
-     * @param angle
-     * @return
-     */
-    public static final Vector rotateAroundAxisZ(Vector v, double angle) {
-        double x, y, cos, sin;
-        cos = Math.cos(angle);
-        sin = Math.sin(angle);
-        x = v.getX() * cos - v.getY() * sin;
-        y = v.getX() * sin + v.getY() * cos;
-        return v.setX(x).setY(y);
-    }
+   public static byte toPackedByte(float f) {
+      return (byte)((int)(f * 256.0F / 360.0F));
+   }
 
-    /**
-     * @param v
-     * @param angleX
-     * @param angleY
-     * @param angleZ
-     * @return
-     */
-    public static final Vector rotateVector(Vector v, double angleX, double angleY, double angleZ) {
-        rotateAroundAxisX(v, angleX);
-        rotateAroundAxisY(v, angleY);
-        rotateAroundAxisZ(v, angleZ);
-        return v;
-    }
-
-
-
-    /**
-     * Util convert
-     *
-     * @return f
-     */
-    public static byte toPackedByte(float f) {
-        return (byte) ((int) (f * 256.0F / 360.0F));
-    }
-
-
-    public static double randomRange(double min, double max) {
-        return Math.random() < 0.5 ? ((1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
-    }
-
-
+   public static double randomRange(double min, double max) {
+      return Math.random() < 0.5D ? (1.0D - Math.random()) * (max - min) + min : Math.random() * (max - min) + min;
+   }
 }

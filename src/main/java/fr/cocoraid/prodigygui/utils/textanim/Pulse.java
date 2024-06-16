@@ -3,181 +3,244 @@ package fr.cocoraid.prodigygui.utils.textanim;
 import java.util.ArrayList;
 
 public class Pulse {
+   private ArrayList<String> frames;
+   private int frame;
 
+   public Pulse(String text, Pulse.PulseColor color, int pause) {
+      int i;
+      label200: {
+         label201: {
+            label202: {
+               label203: {
+                  label204: {
+                     super();
+                     this.frames = new ArrayList();
+                     this.frame = 0;
+                     switch(color) {
+                     case MULTI:
+                     case WHITE:
+                        this.frames.add("§0" + text);
+                        this.frames.add("§8" + text);
+                        this.frames.add("§7" + text);
+                        this.frames.add("§f" + text);
 
-    public enum PulseColor {
-        MULTI,WHITE,BLACK,RED,YELLOW,BLUE,PINK,GREEN,CYAN;
-    }
-    private ArrayList<String> frames = new ArrayList<>();
-    public Pulse(String text, PulseColor color,int pause) {
+                        for(i = 0; i < pause; ++i) {
+                           this.frames.add("§f" + text);
+                        }
 
-        switch (color) {
-            case MULTI:
-                //Parse all... no break
-            case WHITE:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§7" + text);
-                frames.add("§f" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§f" + text);
-                }
-                frames.add("§f" + text);
-                frames.add("§7" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
-            case BLACK:
-                frames.add("§f" + text);
-                frames.add("§7" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
-                frames.add("§0" + text);
-                frames.add("§7" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
+                        this.frames.add("§f" + text);
+                        this.frames.add("§7" + text);
+                        this.frames.add("§8" + text);
+                        this.frames.add("§0" + text);
 
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
-            case RED:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§4" + text);
-                frames.add("§c" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§c" + text);
-                }
-                frames.add("§c" + text);
-                frames.add("§4" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
+                        for(i = 0; i < pause; ++i) {
+                           this.frames.add("§0" + text);
+                        }
 
-            case YELLOW:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§6" + text);
-                frames.add("§e" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§e" + text);
-                }
-                frames.add("§e" + text);
-                frames.add("§6" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
+                        if (color != Pulse.PulseColor.MULTI) {
+                           return;
+                        }
+                     case BLACK:
+                        this.frames.add("§f" + text);
+                        this.frames.add("§7" + text);
+                        this.frames.add("§8" + text);
+                        this.frames.add("§0" + text);
 
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
+                        for(i = 0; i < pause; ++i) {
+                           this.frames.add("§0" + text);
+                        }
 
-            case BLUE:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§1" + text);
-                frames.add("§9" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§9" + text);
-                }
-                frames.add("§9" + text);
-                frames.add("§1" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
+                        this.frames.add("§0" + text);
+                        this.frames.add("§7" + text);
+                        this.frames.add("§8" + text);
+                        this.frames.add("§0" + text);
 
-            case PINK:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§5" + text);
-                frames.add("§d" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§d" + text);
-                }
-                frames.add("§5" + text);
-                frames.add("§d" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
+                        for(i = 0; i < pause; ++i) {
+                           this.frames.add("§0" + text);
+                        }
 
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
+                        if (color != Pulse.PulseColor.MULTI) {
+                           return;
+                        }
+                     case RED:
+                        break;
+                     case YELLOW:
+                        break label204;
+                     case BLUE:
+                        break label203;
+                     case PINK:
+                        break label202;
+                     case GREEN:
+                        break label201;
+                     case CYAN:
+                        break label200;
+                     default:
+                        return;
+                     }
 
-            case GREEN:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§2" + text);
-                frames.add("§a" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§a" + text);
-                }
-                frames.add("§a" + text);
-                frames.add("§2" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
+                     this.frames.add("§0" + text);
+                     this.frames.add("§8" + text);
+                     this.frames.add("§4" + text);
+                     this.frames.add("§c" + text);
 
-                if (color != PulseColor.MULTI) {
-                    break;
-                }
-            case CYAN:
-                frames.add("§0" + text);
-                frames.add("§8" + text);
-                frames.add("§3" + text);
-                frames.add("§b" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§b" + text);
-                }
-                frames.add("§b" + text);
-                frames.add("§3" + text);
-                frames.add("§8" + text);
-                frames.add("§0" + text);
-                for (int i = 0; i < pause; i++) {
-                    frames.add("§0" + text);
-                }
+                     for(i = 0; i < pause; ++i) {
+                        this.frames.add("§c" + text);
+                     }
 
-                break;
+                     this.frames.add("§c" + text);
+                     this.frames.add("§4" + text);
+                     this.frames.add("§8" + text);
+                     this.frames.add("§0" + text);
 
-        }
-    }
-    private int frame = 0;
-    public String next() {
-        if(frame >= frames.size())
-            frame = 0;
-        String s = frames.get(frame);
-        frame++;
-        return s;
-    }
+                     for(i = 0; i < pause; ++i) {
+                        this.frames.add("§0" + text);
+                     }
 
-    public ArrayList<String> getFrames() {
-        return frames;
-    }
+                     if (color != Pulse.PulseColor.MULTI) {
+                        return;
+                     }
+                  }
+
+                  this.frames.add("§0" + text);
+                  this.frames.add("§8" + text);
+                  this.frames.add("§6" + text);
+                  this.frames.add("§e" + text);
+
+                  for(i = 0; i < pause; ++i) {
+                     this.frames.add("§e" + text);
+                  }
+
+                  this.frames.add("§e" + text);
+                  this.frames.add("§6" + text);
+                  this.frames.add("§8" + text);
+                  this.frames.add("§0" + text);
+
+                  for(i = 0; i < pause; ++i) {
+                     this.frames.add("§0" + text);
+                  }
+
+                  if (color != Pulse.PulseColor.MULTI) {
+                     return;
+                  }
+               }
+
+               this.frames.add("§0" + text);
+               this.frames.add("§8" + text);
+               this.frames.add("§1" + text);
+               this.frames.add("§9" + text);
+
+               for(i = 0; i < pause; ++i) {
+                  this.frames.add("§9" + text);
+               }
+
+               this.frames.add("§9" + text);
+               this.frames.add("§1" + text);
+               this.frames.add("§8" + text);
+               this.frames.add("§0" + text);
+
+               for(i = 0; i < pause; ++i) {
+                  this.frames.add("§0" + text);
+               }
+
+               if (color != Pulse.PulseColor.MULTI) {
+                  return;
+               }
+            }
+
+            this.frames.add("§0" + text);
+            this.frames.add("§8" + text);
+            this.frames.add("§5" + text);
+            this.frames.add("§d" + text);
+
+            for(i = 0; i < pause; ++i) {
+               this.frames.add("§d" + text);
+            }
+
+            this.frames.add("§5" + text);
+            this.frames.add("§d" + text);
+            this.frames.add("§8" + text);
+            this.frames.add("§0" + text);
+
+            for(i = 0; i < pause; ++i) {
+               this.frames.add("§0" + text);
+            }
+
+            if (color != Pulse.PulseColor.MULTI) {
+               return;
+            }
+         }
+
+         this.frames.add("§0" + text);
+         this.frames.add("§8" + text);
+         this.frames.add("§2" + text);
+         this.frames.add("§a" + text);
+
+         for(i = 0; i < pause; ++i) {
+            this.frames.add("§a" + text);
+         }
+
+         this.frames.add("§a" + text);
+         this.frames.add("§2" + text);
+         this.frames.add("§8" + text);
+         this.frames.add("§0" + text);
+
+         for(i = 0; i < pause; ++i) {
+            this.frames.add("§0" + text);
+         }
+
+         if (color != Pulse.PulseColor.MULTI) {
+            return;
+         }
+      }
+
+      this.frames.add("§0" + text);
+      this.frames.add("§8" + text);
+      this.frames.add("§3" + text);
+      this.frames.add("§b" + text);
+
+      for(i = 0; i < pause; ++i) {
+         this.frames.add("§b" + text);
+      }
+
+      this.frames.add("§b" + text);
+      this.frames.add("§3" + text);
+      this.frames.add("§8" + text);
+      this.frames.add("§0" + text);
+
+      for(i = 0; i < pause; ++i) {
+         this.frames.add("§0" + text);
+      }
+
+   }
+
+   public String next() {
+      if (this.frame >= this.frames.size()) {
+         this.frame = 0;
+      }
+
+      String s = (String)this.frames.get(this.frame);
+      ++this.frame;
+      return s;
+   }
+
+   public ArrayList<String> getFrames() {
+      return this.frames;
+   }
+
+   public static enum PulseColor {
+      MULTI,
+      WHITE,
+      BLACK,
+      RED,
+      YELLOW,
+      BLUE,
+      PINK,
+      GREEN,
+      CYAN;
+
+      // $FF: synthetic method
+      private static Pulse.PulseColor[] $values() {
+         return new Pulse.PulseColor[]{MULTI, WHITE, BLACK, RED, YELLOW, BLUE, PINK, GREEN, CYAN};
+      }
+   }
 }

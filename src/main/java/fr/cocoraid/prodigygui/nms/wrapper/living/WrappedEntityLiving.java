@@ -1,231 +1,213 @@
 package fr.cocoraid.prodigygui.nms.wrapper.living;
 
 import com.comphenix.protocol.utility.MinecraftReflection;
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher.Registry;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher.Serializer;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObject;
 import fr.cocoraid.prodigygui.nms.EIDGen;
-import fr.cocoraid.prodigygui.nms.wrapper.packet.*;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerEntityDestroy;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerEntityEquipment;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerEntityHeadRotation;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerEntityMetadata;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerEntityTeleport;
+import fr.cocoraid.prodigygui.nms.wrapper.packet.WrapperPlayServerSpawnEntityLiving;
 import fr.cocoraid.prodigygui.utils.UtilMath;
 import fr.cocoraid.prodigygui.utils.VersionChecker;
-import org.bukkit.Bukkit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 public abstract class WrappedEntityLiving {
+   private static Serializer itemSerializer;
+   private static Serializer intSerializer;
+   private static Serializer byteSerializer;
+   private static Serializer stringSerializer;
+   private static Serializer booleanSerializer;
+   private WrapperPlayServerSpawnEntityLiving spawnPacket;
+   private WrapperPlayServerEntityDestroy destroyPacket;
+   private WrapperPlayServerEntityMetadata metaPacket;
+   private WrapperPlayServerEntityTeleport teleportPacket;
+   private WrapperPlayServerEntityHeadRotation yawPacket;
+   private WrappedDataWatcher dataWatcher;
+   protected Map<ItemSlot, WrapperPlayServerEntityEquipment> equipments = new HashMap();
+   private Location location;
+   private Player player;
+   private int typeID;
+   private int id;
 
+   public WrappedEntityLiving(Location location, Player player, int typeID) {
+      this.location = location;
+      this.id = EIDGen.generateEID();
+      this.typeID = typeID;
+      this.player = player;
+      this.spawnPacket = new WrapperPlayServerSpawnEntityLiving();
+      this.spawnPacket.setEntityID(this.id);
+      this.spawnPacket.setType(typeID);
+      this.spawnPacket.setPitch(location.getPitch());
+      this.spawnPacket.setHeadPitch(location.getPitch());
+      this.spawnPacket.setYaw(location.getYaw());
+      this.spawnPacket.setX(location.getX());
+      this.spawnPacket.setY(location.getY());
+      this.spawnPacket.setZ(location.getZ());
+      this.spawnPacket.setUUID(UUID.randomUUID());
+      this.yawPacket = new WrapperPlayServerEntityHeadRotation();
+      this.yawPacket.setEntityID(this.id);
+      this.yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
+      this.destroyPacket = new WrapperPlayServerEntityDestroy();
+      this.destroyPacket.setEntityIds(new Integer[]{this.id});
+      this.dataWatcher = new WrappedDataWatcher();
+      this.metaPacket = new WrapperPlayServerEntityMetadata();
+      this.metaPacket.setEntityID(this.id);
+      this.teleportPacket = new WrapperPlayServerEntityTeleport();
+      ItemSlot[] var4 = ItemSlot.values();
+      int var5 = var4.length;
 
-    private static WrappedDataWatcher.Serializer
-            itemSerializer,
-            intSerializer,
-            byteSerializer,
-            stringSerializer,
-            booleanSerializer;
+      for(int var6 = 0; var6 < var5; ++var6) {
+         ItemSlot itemSlot = var4[var6];
+         WrapperPlayServerEntityEquipment equip = new WrapperPlayServerEntityEquipment();
+         equip.setEntityID(this.id);
+         this.equipments.put(itemSlot, equip);
+      }
 
-    static {
-        if (VersionChecker.isHigherOrEqualThan(VersionChecker.v1_9_R1)) {
-            itemSerializer = WrappedDataWatcher.Registry.get(MinecraftReflection.getItemStackClass());
-            intSerializer = WrappedDataWatcher.Registry.get(Integer.class);
-            byteSerializer = WrappedDataWatcher.Registry.get(Byte.class);
-            stringSerializer = WrappedDataWatcher.Registry.get(String.class);
-            booleanSerializer = WrappedDataWatcher.Registry.get(Boolean.class);
-        }
-    }
+   }
 
-    private WrapperPlayServerSpawnEntityLiving spawnPacket;
-    private WrapperPlayServerEntityDestroy destroyPacket;
-    private WrapperPlayServerEntityMetadata metaPacket;
-    private WrapperPlayServerEntityTeleport teleportPacket;
-    private WrapperPlayServerEntityHeadRotation yawPacket;
+   public void teleport(Location newLocation) {
+      this.teleportPacket.setEntityID(this.id);
+      this.teleportPacket.setX(newLocation.getX());
+      this.teleportPacket.setY(newLocation.getY());
+      this.teleportPacket.setZ(newLocation.getZ());
+      this.teleportPacket.setYaw(newLocation.getYaw());
+      this.teleportPacket.setPitch(newLocation.getPitch());
+      this.teleportPacket.sendPacket(this.player);
+      this.location = newLocation;
+      this.spawnPacket.setPitch(this.location.getPitch());
+      this.spawnPacket.setHeadPitch(this.location.getPitch());
+      this.spawnPacket.setYaw(this.location.getYaw());
+      this.spawnPacket.setX(this.location.getX());
+      this.spawnPacket.setY(this.location.getY());
+      this.spawnPacket.setZ(this.location.getZ());
+      this.yawPacket.setHeadYaw(UtilMath.toPackedByte(this.location.getYaw()));
+   }
 
-    private WrappedDataWatcher dataWatcher;
+   public void fakeTeleport(Location l) {
+      this.teleportPacket.setEntityID(this.id);
+      this.teleportPacket.setX(l.getX());
+      this.teleportPacket.setY(l.getY());
+      this.teleportPacket.setZ(l.getZ());
+      this.teleportPacket.setYaw(l.getYaw());
+      this.teleportPacket.setPitch(l.getPitch());
+      this.teleportPacket.sendPacket(this.player);
+   }
 
-    protected Map<EnumWrappers.ItemSlot, WrapperPlayServerEntityEquipment> equipments = new HashMap<>();
+   public void updateYaw() {
+      this.yawPacket.sendPacket(this.player);
+   }
 
-    private Location location;
-    private Player player;
-    /**
-     * @check https://wiki.vg/Entity_metadata#Mobs
-     */
-    private int typeID;
-    private int id;
+   public void spawnClient(Player client) {
+      this.spawnPacket.sendPacket(client);
+      if (this.typeID != 0) {
+         this.yawPacket.sendPacket(client);
+      }
 
-    public WrappedEntityLiving(Location location,Player player, int typeID) {
-        this.location = location;
-        this.id = EIDGen.generateEID();
-        this.typeID = typeID;
-        this.player = player;
+   }
 
-        this.spawnPacket = new WrapperPlayServerSpawnEntityLiving();
-        spawnPacket.setEntityID(id);
-        spawnPacket.setType(typeID);
-        spawnPacket.setPitch(location.getPitch());
-        spawnPacket.setHeadPitch(location.getPitch());
-        spawnPacket.setYaw(location.getYaw());
-        spawnPacket.setX(location.getX());
-        spawnPacket.setY(location.getY());
-        spawnPacket.setZ(location.getZ());
+   public void updateForClient(Player client) {
+   }
 
-        this.yawPacket = new WrapperPlayServerEntityHeadRotation();
-        yawPacket.setEntityID(id);
-        yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
+   public void despawnClient(Player client) {
+      this.destroyPacket.sendPacket(client);
+   }
 
-        this.destroyPacket = new WrapperPlayServerEntityDestroy();
-        destroyPacket.setEntityIds(new Integer[] {Integer.valueOf(this.id)});
+   public void spawn() {
+      this.spawnPacket.sendPacket(this.player);
+      if (this.typeID != 0) {
+         this.yawPacket.sendPacket(this.player);
+      }
 
-        this.dataWatcher = new WrappedDataWatcher();
+   }
 
-        //this.metaPacket = new WrapperPlayServerEntityMetadata();
-        //metaPacket.setEntityID(id);
+   public void setCustomName(String name) {
+      if (VersionChecker.isHigherOrEqualThan(VersionChecker.v1_13_R1)) {
+         Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(name)[0].getHandle());
+         this.dataWatcher.setObject(new WrappedDataWatcherObject(2, Registry.getChatComponentSerializer(true)), opt);
+      } else {
+         this.dataWatcher.setObject(new WrappedDataWatcherObject(2, stringSerializer), name);
+      }
 
-        this.teleportPacket = new WrapperPlayServerEntityTeleport();
+   }
 
+   public void setCustomNameVisible(boolean visible) {
+      this.dataWatcher.setObject(new WrappedDataWatcherObject(3, booleanSerializer), visible);
+   }
 
-        for (EnumWrappers.ItemSlot itemSlot : EnumWrappers.ItemSlot.values()) {
-            WrapperPlayServerEntityEquipment equip = new WrapperPlayServerEntityEquipment();
-            equip.setEntityID(id);
-            equipments.put(itemSlot,equip);
-        }
+   public void setInvisible(boolean invisible) {
+      this.setDataWatcherObject(Byte.class, 0, Byte.valueOf((byte)(invisible ? 32 : 0)));
+   }
 
-    }
+   public void despawn() {
+      this.destroyPacket.sendPacket(this.player);
+   }
 
-    public void teleport(Location newLocation) {
-        teleportPacket.setEntityID(id);
-        teleportPacket.setX(newLocation.getX());
-        teleportPacket.setY(newLocation.getY());
-        teleportPacket.setZ(newLocation.getZ());
-        teleportPacket.setYaw(newLocation.getYaw());
-        teleportPacket.setPitch(newLocation.getPitch());
-        teleportPacket.sendPacket(player);
-        this.location = newLocation;
+   public void equip(ItemSlot slot, ItemStack item) {
+      WrapperPlayServerEntityEquipment equipPacket = (WrapperPlayServerEntityEquipment)this.equipments.get(slot);
+      if (VersionChecker.isHigherOrEqualThan(VersionChecker.v1_16_R1)) {
+         equipPacket.setItem(slot, item);
+      } else {
+         equipPacket.setItem(item);
+         equipPacket.setSlot(slot);
+      }
 
-        //update spawn location too
-        spawnPacket.setPitch(location.getPitch());
-        spawnPacket.setHeadPitch(location.getPitch());
-        spawnPacket.setYaw(location.getYaw());
-        spawnPacket.setX(location.getX());
-        spawnPacket.setY(location.getY());
-        spawnPacket.setZ(location.getZ());
+      equipPacket.sendPacket(this.player);
+   }
 
-        yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
-    }
+   public void setDataWatcherObject(Class<?> type, int objectIndex, Object object) {
+      WrappedDataWatcherObject watcherObject = new WrappedDataWatcherObject(objectIndex, Registry.get(type));
+      this.dataWatcher.setObject(watcherObject, object);
+   }
 
-    public void fakeTeleport(Location l) {
-        teleportPacket.setEntityID(id);
-        teleportPacket.setX(l.getX());
-        teleportPacket.setY(l.getY());
-        teleportPacket.setZ(l.getZ());
-        teleportPacket.setYaw(l.getYaw());
-        teleportPacket.setPitch(l.getPitch());
-        teleportPacket.sendPacket(player);
-    }
+   public void sendUpdatedmetatada() {
+      this.metaPacket.setMetadata(this.dataWatcher.getWatchableObjects());
+      this.metaPacket.sendPacket(this.player);
+   }
 
-    public void updateYaw() {
-        yawPacket.sendPacket(player);
-    }
+   public WrappedDataWatcher getDataWatcher() {
+      return this.dataWatcher;
+   }
 
-    public void spawnClient(Player client) {
-        spawnPacket.sendPacket(client);
-        //armorstand does not need it...
-        if(typeID != 0)
-            yawPacket.sendPacket(client);
-    }
+   public void setLocation(Location location) {
+      this.spawnPacket.setPitch(location.getPitch());
+      this.spawnPacket.setHeadPitch(location.getPitch());
+      this.spawnPacket.setYaw(location.getYaw());
+      this.spawnPacket.setX(location.getX());
+      this.spawnPacket.setY(location.getY());
+      this.spawnPacket.setZ(location.getZ());
+      this.location = location;
+      this.yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
+   }
 
-    public void updateForClient(Player client) {
+   public int getId() {
+      return this.id;
+   }
 
-    }
+   public Location getLocation() {
+      return this.location;
+   }
 
+   static {
+      if (VersionChecker.isHigherOrEqualThan(VersionChecker.v1_9_R1)) {
+         itemSerializer = Registry.get(MinecraftReflection.getItemStackClass());
+         intSerializer = Registry.get(Integer.class);
+         byteSerializer = Registry.get(Byte.class);
+         stringSerializer = Registry.get(String.class);
+         booleanSerializer = Registry.get(Boolean.class);
+      }
 
-    public void despawnClient(Player client) {
-        destroyPacket.sendPacket(client);
-
-    }
-
-    public void spawn() {
-        spawnPacket.sendPacket(player);
-        if(typeID != 0)
-            yawPacket.sendPacket(player);
-
-    }
-
-
-
-    public void setCustomName(String name) {
-        if(VersionChecker.isHigherOrEqualThan(VersionChecker.v1_13_R1)) {
-            dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2,
-                            WrappedDataWatcher.Registry.getChatComponentSerializer(true))
-                    , Optional.ofNullable(WrappedChatComponent.fromChatMessage(name)[0].getHandle()));
-        }
-        else {
-            dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, stringSerializer), name);
-        }
-    }
-
-
-    public void setCustomNameVisible(boolean visible) {
-        dataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanSerializer), visible);
-
-
-    }
-    public void setInvisible(boolean invisible) {
-        setDataWatcherObject(Byte.class,0,invisible ? (byte) 0x20 : (byte) 0);
-    }
-    public void despawn() {
-        destroyPacket.sendPacket(player);
-    }
-
-    public void equip(EnumWrappers.ItemSlot slot, ItemStack item) {
-        WrapperPlayServerEntityEquipment equipPacket = equipments.get(slot);
-        if(VersionChecker.isHigherOrEqualThan(VersionChecker.v1_16_R1)) {
-            equipPacket.setItem(slot, item);
-        } else {
-            equipPacket.setItem(item);
-            equipPacket.setSlot(slot);
-        }
-        equipPacket.sendPacket(player);
-    }
-
-
-
-    public void setDataWatcherObject(Class<?> type, int objectIndex, Object object) {
-        WrappedDataWatcher.WrappedDataWatcherObject watcherObject = new WrappedDataWatcher.WrappedDataWatcherObject(objectIndex, WrappedDataWatcher.Registry.get(type));
-        dataWatcher.setObject(watcherObject, object);
-
-    }
-
-
-    public void sendUpdatedmetatada() {
-        //metaPacket.setMetadata(dataWatcher.getWatchableObjects());
-        //metaPacket.sendPacket(player);
-    }
-
-    public WrappedDataWatcher getDataWatcher() {
-        return dataWatcher;
-    }
-    
-
-    public void setLocation(Location location) {
-        spawnPacket.setPitch(location.getPitch());
-        spawnPacket.setHeadPitch(location.getPitch());
-        spawnPacket.setYaw(location.getYaw());
-        spawnPacket.setX(location.getX());
-        spawnPacket.setY(location.getY());
-        spawnPacket.setZ(location.getZ());
-        this.location = location;
-        yawPacket.setHeadYaw(UtilMath.toPackedByte(location.getYaw()));
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
+   }
 }

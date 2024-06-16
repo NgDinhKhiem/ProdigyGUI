@@ -3,47 +3,47 @@ package fr.cocoraid.prodigygui.threedimensionalgui.itemdata;
 import org.bukkit.Particle;
 
 public class NormalParticleData extends ParticleData {
+   private double offsetX;
+   private double offsetY;
+   private double offsetZ = 0.0D;
+   private double speed = 0.0D;
 
-    private double offsetX,offsetY,offsetZ = 0;
-    private double speed = 0;
+   public NormalParticleData(Particle particle) {
+      super(particle);
+   }
 
-    public NormalParticleData(Particle particle) {
-        super(particle);
+   public NormalParticleData setOffsetX(double offsetX) {
+      this.offsetX = offsetX;
+      return this;
+   }
 
-    }
+   public NormalParticleData setOffsetY(double offsetY) {
+      this.offsetY = offsetY;
+      return this;
+   }
 
-    public NormalParticleData setOffsetX(double offsetX) {
-        this.offsetX = offsetX;
-        return this;
-    }
+   public void setSpeed(double speed) {
+      this.speed = speed;
+   }
 
-    public NormalParticleData setOffsetY(double offsetY) {
-        this.offsetY = offsetY;
-        return this;
-    }
+   public NormalParticleData setOffsetZ(double offsetZ) {
+      this.offsetZ = offsetZ;
+      return this;
+   }
 
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
+   public double getSpeed() {
+      return this.speed;
+   }
 
-    public NormalParticleData setOffsetZ(double offsetZ) {
-        this.offsetZ = offsetZ;
-        return this;
-    }
+   public double getOffsetX() {
+      return this.offsetX;
+   }
 
-    public double getSpeed() {
-        return speed;
-    }
+   public double getOffsetY() {
+      return this.offsetY;
+   }
 
-    public double getOffsetX() {
-        return offsetX;
-    }
-
-    public double getOffsetY() {
-        return offsetY;
-    }
-
-    public double getOffsetZ() {
-        return offsetZ;
-    }
+   public double getOffsetZ() {
+      return this.offsetZ;
+   }
 }
